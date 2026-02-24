@@ -1,5 +1,6 @@
 import express from "express";
 import authRouter from "./routes/auth.route.js";
+import "dotenv/config";
 
 const app = express();
 const port = 3000;
