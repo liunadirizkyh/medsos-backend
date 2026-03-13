@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma.js";
+import * as z from "zod";
 
 export const getUserbyUsername = async (req, res) => {
   const { username } = req.params;
@@ -59,5 +60,51 @@ export const getSearchUser = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const updateUser = async (req, res) => {
+  try {
+    const userSchema = z.object({
+      username: z
+        .string()
+        .min(5, "Username must be at least 5 characters long"),
+      fullname: z
+        .string()
+        .min(2, "Fullname must be at least 2 characters long"),
+      bio: z.string().max(200, "Bio must be at most 200 characters long"),
+    });
+
+    const validate = userSchema.parse(req.body);
+
+    const currentUser = await prisma.user.findUnique({
+      where: {
+        username: validate.username,
+      },
+    });
+
+    if (currentUser) {
+      return res.status(400).json({ error: "Username already exists" });
+    }
+
+    const updateUser = await prisma.user.update({
+      where: {
+        id: req.user.id,
+      },
+      data: {
+        username: validate.username,
+        fullname: validate.fullname,
+        bio: validate.bio,
+      },
+      omit: {
+        password: true,
+      },
+    });
+
+    res
+      .status(201)
+      .json({ message: "User updated successfully", user: updateUser });
+  } catch (error) {
+    return res.status(400).json({ error: error });
   }
 };
