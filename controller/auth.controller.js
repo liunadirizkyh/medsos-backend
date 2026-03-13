@@ -78,3 +78,9 @@ export const loginUser = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const getUser = async (req, res) => {
+  res
+    .status(200)
+    .json({ message: "User retrieved successfully", user: req.user });
+};
