@@ -1,5 +1,6 @@
 import { prisma } from "../lib/prisma.js";
 import * as z from "zod";
+import cloudinary from "../lib/cloudinary.js";
 
 export const getUserbyUsername = async (req, res) => {
   const { username } = req.params;
@@ -106,5 +107,53 @@ export const updateUser = async (req, res) => {
       .json({ message: "User updated successfully", user: updateUser });
   } catch (error) {
     return res.status(400).json({ error: error });
+  }
+};
+
+export const updateAvatar = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const currentUser = await prisma.user.findUnique({
+      where: {
+        id: req.user.id,
+      },
+    });
+
+    if (currentUser.imageId) {
+      await cloudinary.uploader.destroy(currentUser.imageId);
+    }
+
+    const fileStr = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+
+    const result = await cloudinary.uploader.upload(fileStr, {
+      folder: "avatar",
+      transformation: [
+        {
+          width: 300,
+          height: 300,
+        },
+      ],
+    });
+
+    const updateUser = await prisma.user.update({
+      where: {
+        id: req.user.id,
+      },
+      data: {
+        image: result.secure_url,
+        imageId: result.public_id,
+      },
+      omit: {
+        password: true,
+      },
+    });
+    res
+      .status(201)
+      .json({ message: "Avatar updated successfully", user: updateUser });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
