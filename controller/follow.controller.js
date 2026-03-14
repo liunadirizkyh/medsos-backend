@@ -70,3 +70,48 @@ export const followUserAccount = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const unfollowUserAccount = async (req, res) => {
+  const unfollowUserId = Number(req.params.unfollowUserId);
+  const currentUserId = req.user.id;
+
+  try {
+    const unfollow = await prisma.follow.delete({
+      where: {
+        followerId_followingId: {
+          followerId: unfollowUserId,
+          followingId: currentUserId,
+        },
+      },
+    });
+
+    await prisma.user.update({
+      where: {
+        id: currentUserId,
+      },
+      data: {
+        followingCount: {
+          decrement: 1,
+        },
+      },
+    });
+
+    await prisma.user.update({
+      where: {
+        id: unfollowUserId,
+      },
+      data: {
+        followerCount: {
+          decrement: 1,
+        },
+      },
+    });
+
+    res
+      .status(201)
+      .json({ message: "User unfollowed successfully", data: unfollow });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
