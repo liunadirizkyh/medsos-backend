@@ -20,8 +20,9 @@ export const createFeed = async (req, res) => {
       folder: "feeds",
       transformation: [
         {
-          width: 1080,
-          height: 1080,
+          aspect_ratio: "4:5",
+          crop: "fill",
+          gravity: "auto",
         },
         {
           quality: "auto",
