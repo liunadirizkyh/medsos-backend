@@ -83,3 +83,35 @@ export const readAllFeeds = async (req, res) => {
     res.status(500).json({ message: "Internal server error", error: error });
   }
 };
+
+export const detailFeed = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const post = await prisma.post.findUnique({
+      where: {
+        id: Number(id),
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullname: true,
+            username: true,
+            image: true,
+          },
+        },
+      },
+    });
+
+    if (!post) {
+      return res.status(404).json({ message: "Feed not found" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Feed retrieved successfully", post: post });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error: error });
+  }
+};
