@@ -58,3 +58,28 @@ export const createFeed = async (req, res) => {
     res.status(500).json({ message: "Internal server error", error: error });
   }
 };
+
+export const readAllFeeds = async (req, res) => {
+  try {
+    const posts = await prisma.post.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullname: true,
+            username: true,
+            image: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    res
+      .status(200)
+      .json({ message: "Feeds retrieved successfully", posts: posts });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error: error });
+  }
+};
