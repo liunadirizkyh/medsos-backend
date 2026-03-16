@@ -115,3 +115,37 @@ export const detailFeed = async (req, res) => {
     res.status(500).json({ message: "Internal server error", error: error });
   }
 };
+
+export const deleteFeed = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const post = await prisma.post.findUnique({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    if (!post) {
+      return res.status(404).json({ message: "Feed not found" });
+    }
+
+    if (post.userId !== req.user.id) {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized to delete this feed" });
+    }
+
+    await cloudinary.uploader.destroy(post.imageId);
+
+    await prisma.post.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    res.status(200).json({ message: "Feed deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error: error });
+  }
+};
