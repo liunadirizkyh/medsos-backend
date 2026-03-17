@@ -46,3 +46,48 @@ export const createComment = async (req, res) => {
     res.status(500).json({ message: "Internal server error", error: error });
   }
 };
+
+export const deleteComment = async (req, res) => {
+  try {
+    const currentUser = req.user.id;
+    const { commentId } = req.params;
+
+    const comment = await prisma.comment.findUnique({
+      where: {
+        id: Number(commentId),
+      },
+    });
+
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+
+    if (comment.userId !== currentUser) {
+      return res
+        .status(403)
+        .json({ message: "You are not the owner of this comment" });
+    }
+
+    await prisma.comment.delete({
+      where: {
+        id: Number(commentId),
+      },
+    });
+
+    await prisma.post.update({
+      where: {
+        id: Number(comment.postId),
+      },
+      data: {
+        commentCount: {
+          decrement: 1,
+        },
+      },
+    });
+
+    res.status(200).json({ message: "Comment deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error", error: error });
+  }
+};
