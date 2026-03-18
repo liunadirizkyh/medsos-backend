@@ -12,6 +12,6 @@ const followRouter = Router();
 followRouter.post("/", authMiddleware, followUserAccount);
 followRouter.delete("/:unfollowUserId", authMiddleware, unfollowUserAccount);
 followRouter.get("/user", authMiddleware, getLimitUser);
-followRouter.get("/followUserId", authMiddleware, checkFollow);
+followRouter.get("/:followUserId", authMiddleware, checkFollow);
 
 export default followRouter;

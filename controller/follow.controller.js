@@ -162,7 +162,7 @@ export const getLimitUser = async (req, res) => {
 export const checkFollow = async (req, res) => {
   try {
     const currentUser = req.user.id;
-    const { followUserId } = req.body;
+    const followUserId = Number(req.params.followUserId);
 
     const checkFollowUserId = await prisma.user.findUnique({
       where: {
