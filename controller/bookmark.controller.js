@@ -53,3 +53,32 @@ export const toogleSaveFeed = async (req, res) => {
     return res.status(500).json({ message: "Internal server error", error });
   }
 };
+
+export const checkSaveFeed = async (req, res) => {
+  try {
+    const postId = Number(req.params.postId);
+    const currentUser = req.user.id;
+
+    const checkSave = await prisma.bookmark.findUnique({
+      where: {
+        userId_postId: {
+          userId: currentUser,
+          postId: postId,
+        },
+      },
+    });
+
+    if (checkSave) {
+      return res
+        .status(200)
+        .json({ message: "Post is bookmarked", data: true });
+    } else {
+      return res
+        .status(200)
+        .json({ message: "Post is not bookmarked", data: false });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error", error });
+  }
+};
