@@ -6,6 +6,7 @@ import userRouter from "./routes/user.route.js";
 import followRouter from "./routes/follow.route.js";
 import feedRouter from "./routes/feed.route.js";
 import commentRouter from "./routes/comment.route.js";
+import likeRouter from "./routes/like.route.js";
 
 const app = express();
 const port = 3000;
@@ -18,6 +19,7 @@ app.use("/api/user", userRouter);
 app.use("/api/follow", followRouter);
 app.use("/api/feed", feedRouter);
 app.use("/api/comment", commentRouter);
+app.use("/api/like", likeRouter);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
