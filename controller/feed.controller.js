@@ -61,7 +61,36 @@ export const createFeed = async (req, res) => {
 
 export const readAllFeeds = async (req, res) => {
   try {
+    const currentUserId = req.user.id;
+
+    const followings = await prisma.follow.findMany({
+      where: {
+        followingId: currentUserId,
+      },
+      select: {
+        followerId: true,
+      },
+    });
+    const followingsIds = followings.map((following) => following.followerId);
+
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 3;
+    const skip = (page - 1) * limit;
+
+    const totalFeed = await prisma.post.count({
+      where: {
+        userId: {
+          in: [...followingsIds, currentUserId],
+        },
+      },
+    });
+
     const posts = await prisma.post.findMany({
+      where: {
+        userId: {
+          in: [...followingsIds, currentUserId],
+        },
+      },
       include: {
         user: {
           select: {
@@ -75,10 +104,19 @@ export const readAllFeeds = async (req, res) => {
       orderBy: {
         createdAt: "desc",
       },
+      skip: skip,
+      take: limit,
     });
-    res
-      .status(200)
-      .json({ message: "Feeds retrieved successfully", posts: posts });
+
+    const totalPage = Math.ceil(totalFeed / limit);
+
+    res.status(200).json({
+      page,
+      limit,
+      totalPage,
+      totalFeed,
+      posts: posts,
+    });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error: error });
   }
@@ -99,6 +137,23 @@ export const detailFeed = async (req, res) => {
             fullname: true,
             username: true,
             image: true,
+          },
+        },
+        comments: {
+          select: {
+            content: true,
+            createdAt: true,
+            user: {
+              select: {
+                id: true,
+                fullname: true,
+                username: true,
+                image: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "desc",
           },
         },
       },
