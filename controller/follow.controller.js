@@ -158,3 +158,38 @@ export const getLimitUser = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const checkFollow = async (req, res) => {
+  try {
+    const currentUser = req.user.id;
+    const { followUserId } = req.body;
+
+    const checkFollowUserId = await prisma.user.findUnique({
+      where: {
+        id: Number(followUserId),
+      },
+    });
+
+    if (!checkFollowUserId) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const follow = await prisma.follow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: followUserId,
+          followingId: currentUser,
+        },
+      },
+    });
+
+    if (follow) {
+      return res.status(200).json({ data: true });
+    } else {
+      return res.status(200).json({ data: false });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
