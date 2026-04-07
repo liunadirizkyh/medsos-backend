@@ -1,4 +1,9 @@
 import swaggerJsdoc from 'swagger-jsdoc';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const options = {
   definition: {
@@ -24,7 +29,8 @@ const options = {
       },
     },
   },
-  apis: ['./routes/*.js'], // Scan routes for JSDoc
+  // Menggunakan path absolute agar bisa dibaca saat di-deploy di Vercel
+  apis: [path.join(__dirname, '../routes/*.js')], 
 };
 
 export const swaggerSpec = swaggerJsdoc(options);
