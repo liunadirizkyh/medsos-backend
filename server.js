@@ -9,8 +9,13 @@ import commentRouter from "./routes/comment.route.js";
 import likeRouter from "./routes/like.route.js";
 import bookmarkRouter from "./routes/bookmark.route.js";
 
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger.js";
+
 const app = express();
 const port = 3000;
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(cors());
 app.use(express.json());
@@ -23,9 +28,9 @@ app.use("/api/comment", commentRouter);
 app.use("/api/like", likeRouter);
 app.use("/api/bookmark", bookmarkRouter);
 
-// app.listen(port, () => {
-//   console.log(`Example app listening on port ${port}`);
-// });
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
+});
 app.get("/", (req, res) => {
   res.send("API jalan 🚀");
 });
