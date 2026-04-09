@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { authMiddleware } from "../middleware/auth.middleware.js";
 import { checkLike, createLike } from "../controller/like.controller.js";
+import { authMiddleware } from "../middleware/auth.middleware.js";
 
 const likeRouter = Router();
 
@@ -8,14 +8,14 @@ const likeRouter = Router();
  * @swagger
  * tags:
  *   name: Like
- *   description: Manajemen Like pada Postingan
+ *   description: Manajemen Suka (Like) pada Postingan
  */
 
 /**
  * @swagger
  * /api/like/{id}:
  *   post:
- *     summary: Like/Unlike postingan
+ *     summary: Menyukai (Like) atau membatalkan (Unlike) postingan
  *     tags: [Like]
  *     security:
  *       - bearerAuth: []
@@ -25,19 +25,10 @@ const likeRouter = Router();
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID postingan (feed)
+ *         description: ID postingan yang akan di-like / unlike
  *     responses:
- *       200:
- *         description: Berhasil unlike postingan
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
  *       201:
- *         description: Berhasil like postingan
+ *         description: Aksi berhasil dijalankan
  *         content:
  *           application/json:
  *             schema:
@@ -45,16 +36,30 @@ const likeRouter = Router();
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: Post liked successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     liked:
+ *                       type: boolean
  *       404:
  *         description: Postingan tidak ditemukan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Post not found
  */
 likeRouter.post("/:id", authMiddleware, createLike);
 
 /**
  * @swagger
- * /api/like/{id}:
+ * /api/like/status/{id}:
  *   get:
- *     summary: Cek status apakah user sudah me-like postingan tertentu
+ *     summary: Mengecek status Like pada sebuah postingan
  *     tags: [Like]
  *     security:
  *       - bearerAuth: []
@@ -66,17 +71,19 @@ likeRouter.post("/:id", authMiddleware, createLike);
  *           type: integer
  *     responses:
  *       200:
- *         description: Status like berhasil dicek
+ *         description: Mengembalikan true / false
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Like status checked successfully
  *                 data:
  *                   type: boolean
- *       404:
- *         description: Postingan tidak ditemukan
+ *                   example: true
  */
-likeRouter.get("/:id", authMiddleware, checkLike);
+likeRouter.get("/status/:id", authMiddleware, checkLike);
 
 export default likeRouter;

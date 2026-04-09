@@ -57,6 +57,15 @@ const authRouter = Router();
  *                 message:
  *                   type: string
  *                   example: User registered successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     username:
+ *                       type: string
+ *                     email:
+ *                       type: string
  *       400:
  *         description: Input tidak valid (Zod validation error)
  *         content:
@@ -65,11 +74,17 @@ const authRouter = Router();
  *               type: object
  *               properties:
  *                 error:
- *                   type: array
- *                   items:
- *                     type: object
+ *                   type: string
+ *                   example: Validation failed
+ *                 details:
+ *                   type: object
+ *                   additionalProperties:
+ *                     type: string
+ *                   example:
+ *                     username: Username must be at least 5 characters long
+ *                     email: Invalid email address
  *       409:
- *         description: Email sudah terdaftar
+ *         description: Konflik data (Misal Email sudah terdaftar)
  *         content:
  *           application/json:
  *             schema:
@@ -80,6 +95,14 @@ const authRouter = Router();
  *                   example: Email already exists
  *       500:
  *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Internal Server Error
  */
 authRouter.post("/register", validate(registerSchema), registerUser);
 
@@ -108,12 +131,43 @@ authRouter.post("/register", validate(registerSchema), registerUser);
  *     responses:
  *       200:
  *         description: Login berhasil, mengembalikan token JWT
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User logged in successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       type: object
+ *                     token:
+ *                       type: string
  *       400:
- *         description: Email atau password tidak disertakan
+ *         description: Validasi input gagal
  *       401:
  *         description: Password salah
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Invalid password
  *       404:
  *         description: User tidak ditemukan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: User not found
  *       500:
  *         description: Internal Server Error
  */
@@ -130,8 +184,26 @@ authRouter.post("/login", validate(loginSchema), loginUser);
  *     responses:
  *       200:
  *         description: Data user berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User retrieved successfully
+ *                 data:
+ *                   type: object
  *       401:
  *         description: Tidak terautentikasi (Token tidak ada atau tidak valid)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Invalid or missing token
  */
 authRouter.get("/me", authMiddleware, getUser);
 

@@ -5,8 +5,8 @@ import {
   updateAvatar,
   updateUser,
 } from "../controller/user.controller.js";
-import { authMiddleware } from "../middleware/auth.middleware.js";
 import upload from "../middleware/upload.middleware.js";
+import { authMiddleware } from "../middleware/auth.middleware.js";
 import validate from "../middleware/validate.middleware.js";
 import { updateProfileSchema } from "../validations/user.validation.js";
 
@@ -23,47 +23,67 @@ const userRouter = Router();
  * @swagger
  * /api/user/search:
  *   get:
- *     summary: Mencari user berdasarkan query username
+ *     summary: Mencari user berdasarkan username
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: username
  *         required: true
  *         schema:
  *           type: string
+ *         description: Username yang ingin dicari (Case Insensitive)
  *     responses:
  *       200:
- *         description: Daftar user ditemukan
+ *         description: Berhasil mendapatkan list user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User retrieved successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       400:
+ *         description: Parameter spesifik tidak valid
  *       404:
- *         description: Username query is required / User not found
+ *         description: User tidak ditemukan
  */
-userRouter.get("/search", getSearchUser);
+userRouter.get("/search", authMiddleware, getSearchUser);
 
 /**
  * @swagger
  * /api/user/{username}:
  *   get:
- *     summary: Mendapatkan profil user berdasarkan username
+ *     summary: Mendapatkan profil lengkap user berdasarkan username
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: username
  *         required: true
  *         schema:
  *           type: string
+ *         description: Username target
  *     responses:
  *       200:
- *         description: Data profil user
+ *         description: Profil user beserta postingan dan bookmark berhasil diambil
  *       404:
  *         description: User tidak ditemukan
  */
-userRouter.get("/:username", getUserbyUsername);
+userRouter.get("/:username", authMiddleware, getUserbyUsername);
 
 /**
  * @swagger
- * /api/user/update-user:
+ * /api/user:
  *   put:
- *     summary: Update data profil user
+ *     summary: Mengupdate profil user (username, fullname, bio)
  *     tags: [User]
  *     security:
  *       - bearerAuth: []
@@ -73,33 +93,26 @@ userRouter.get("/:username", getUserbyUsername);
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - username
- *               - fullname
- *               - bio
  *             properties:
  *               username:
  *                 type: string
- *                 minLength: 5
  *               fullname:
  *                 type: string
- *                 minLength: 2
  *               bio:
  *                 type: string
- *                 maxLength: 200
  *     responses:
  *       200:
  *         description: Profil berhasil diupdate
  *       400:
- *         description: Validasi error (Zod) atau Username sudah ada
+ *         description: Username conflict atau validasi gagal
  */
-userRouter.put("/update-user", authMiddleware, validate(updateProfileSchema), updateUser);
+userRouter.put("/", authMiddleware, validate(updateProfileSchema), updateUser);
 
 /**
  * @swagger
- * /api/user/update-photo-profile:
+ * /api/user/avatar:
  *   put:
- *     summary: Update foto profil user
+ *     summary: Mengupdate foto profil user (Avatar)
  *     tags: [User]
  *     security:
  *       - bearerAuth: []
@@ -109,25 +122,17 @@ userRouter.put("/update-user", authMiddleware, validate(updateProfileSchema), up
  *         multipart/form-data:
  *           schema:
  *             type: object
- *             required:
- *               - image
  *             properties:
  *               image:
  *                 type: string
  *                 format: binary
+ *                 description: Foto yang akan diunggah
  *     responses:
  *       200:
- *         description: Foto profil berhasil diupdate
+ *         description: Avatar berhasil diupdate
  *       400:
  *         description: Tidak ada file yang diunggah
- *       500:
- *         description: Gagal upload ke Cloudinary atau internal error
  */
-userRouter.put(
-  "/update-photo-profile",
-  authMiddleware,
-  upload.single("image"),
-  updateAvatar,
-);
+userRouter.put("/avatar", authMiddleware, upload.single("image"), updateAvatar);
 
 export default userRouter;

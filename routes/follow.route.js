@@ -13,14 +13,71 @@ const followRouter = Router();
  * @swagger
  * tags:
  *   name: Follow
- *   description: Manajemen Pertemanan/Follow User
+ *   description: Manajemen Pertemanan / Mengikuti Akun
  */
+
+/**
+ * @swagger
+ * /api/follow/suggestions:
+ *   get:
+ *     summary: Mendapatkan rekomendasi user untuk diikuti (Max 5)
+ *     tags: [Follow]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Berhasil mengambil data saran teman
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User suggestions retrieved successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ */
+followRouter.get("/suggestions", authMiddleware, getLimitUser);
+
+/**
+ * @swagger
+ * /api/follow/status/{followUserId}:
+ *   get:
+ *     summary: Mengecek apakah saat ini sedang mengikuti suatu akun
+ *     tags: [Follow]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: followUserId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Mengembalikan boolean (true/false)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Follow status checked successfully
+ *                 data:
+ *                   type: boolean
+ *                   example: true
+ */
+followRouter.get("/status/:followUserId", authMiddleware, checkFollow);
 
 /**
  * @swagger
  * /api/follow:
  *   post:
- *     summary: Follow user
+ *     summary: Mengikuti seorang user (Follow)
  *     tags: [Follow]
  *     security:
  *       - bearerAuth: []
@@ -37,7 +94,7 @@ const followRouter = Router();
  *                 type: integer
  *     responses:
  *       201:
- *         description: Berhasil follow user
+ *         description: Berhasil mem-follow user
  *         content:
  *           application/json:
  *             schema:
@@ -45,12 +102,19 @@ const followRouter = Router();
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: User followed successfully
  *                 data:
  *                   type: object
  *       400:
- *         description: Anda sudah follow atau mencoba follow diri sendiri
- *       404:
- *         description: User tidak ditemukan
+ *         description: Mem-follow diri sendiri atau sudah mem-follow sebelumnya
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: You are already following this user
  */
 followRouter.post("/", authMiddleware, followUserAccount);
 
@@ -58,7 +122,7 @@ followRouter.post("/", authMiddleware, followUserAccount);
  * @swagger
  * /api/follow/{unfollowUserId}:
  *   delete:
- *     summary: Unfollow user
+ *     summary: Berhenti mengikuti seorang user (Unfollow)
  *     tags: [Follow]
  *     security:
  *       - bearerAuth: []
@@ -70,7 +134,7 @@ followRouter.post("/", authMiddleware, followUserAccount);
  *           type: integer
  *     responses:
  *       201:
- *         description: Berhasil unfollow user
+ *         description: Berhasil meng-unfollow user
  *         content:
  *           application/json:
  *             schema:
@@ -78,63 +142,12 @@ followRouter.post("/", authMiddleware, followUserAccount);
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: User unfollowed successfully
  *                 data:
  *                   type: object
+ *       500:
+ *         description: Internal Server Error
  */
 followRouter.delete("/:unfollowUserId", authMiddleware, unfollowUserAccount);
-
-/**
- * @swagger
- * /api/follow/user:
- *   get:
- *     summary: Mendapatkan daftar user untuk disarankan (limit)
- *     tags: [Follow]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Daftar user berhasil diambil
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- */
-followRouter.get("/user", authMiddleware, getLimitUser);
-
-/**
- * @swagger
- * /api/follow/{followUserId}:
- *   get:
- *     summary: Cek status apakah sudah mem-follow user tertentu
- *     tags: [Follow]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: followUserId
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Status follow berhasil dicek
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 data:
- *                   type: boolean
- *       404:
- *         description: User tidak ditemukan
- */
-followRouter.get("/:followUserId", authMiddleware, checkFollow);
 
 export default followRouter;

@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { authMiddleware } from "../middleware/auth.middleware.js";
 import {
   createComment,
   deleteComment,
 } from "../controller/comment.controller.js";
+import { authMiddleware } from "../middleware/auth.middleware.js";
 
 const commentRouter = Router();
 
@@ -18,7 +18,7 @@ const commentRouter = Router();
  * @swagger
  * /api/comment:
  *   post:
- *     summary: Menambahkan komentar pada postingan
+ *     summary: Membuat komentar baru di sebuah postingan
  *     tags: [Comment]
  *     security:
  *       - bearerAuth: []
@@ -43,10 +43,24 @@ const commentRouter = Router();
  *           application/json:
  *             schema:
  *               type: object
- *       400:
- *         description: Post ID dan konten tidak disertakan
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Comment created successfully
+ *                 data:
+ *                   type: object
  *       404:
- *         description: Postingan tidak ditemukan
+ *         description: Postingan tidak ditemukan (Bisa jadi sudah dihapus)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Post not found
+ *       500:
+ *         description: Internal Server Error
  */
 commentRouter.post("/", authMiddleware, createComment);
 
@@ -54,7 +68,7 @@ commentRouter.post("/", authMiddleware, createComment);
  * @swagger
  * /api/comment/{commentId}:
  *   delete:
- *     summary: Menghapus komentar
+ *     summary: Menghapus komentar sendiri
  *     tags: [Comment]
  *     security:
  *       - bearerAuth: []
@@ -64,6 +78,7 @@ commentRouter.post("/", authMiddleware, createComment);
  *         required: true
  *         schema:
  *           type: integer
+ *         description: ID komentar yang akan dihapus
  *     responses:
  *       200:
  *         description: Komentar berhasil dihapus
@@ -74,10 +89,27 @@ commentRouter.post("/", authMiddleware, createComment);
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: Comment deleted successfully
  *       403:
- *         description: Tidak diizinkan (bukan pemilik komentar)
+ *         description: Menghapus komentar orang lain
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: You are not the owner of this comment
  *       404:
  *         description: Komentar tidak ditemukan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Comment not found
  */
 commentRouter.delete("/:commentId", authMiddleware, deleteComment);
 

@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { authMiddleware } from "../middleware/auth.middleware.js";
 import {
   checkSaveFeed,
   toogleSaveFeed,
 } from "../controller/bookmark.controller.js";
+import { authMiddleware } from "../middleware/auth.middleware.js";
 
 const bookmarkRouter = Router();
 
@@ -30,7 +30,7 @@ const bookmarkRouter = Router();
  *           type: integer
  *     responses:
  *       200:
- *         description: Berhasil simpan/hapus bookmark
+ *         description: Status bookmark berhasil diubah
  *         content:
  *           application/json:
  *             schema:
@@ -38,18 +38,27 @@ const bookmarkRouter = Router();
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: Post bookmarked
  *                 data:
  *                   type: object
  *       404:
- *         description: Postingan tidak ditemukan
+ *         description: Post tidak ditemukan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Post not found
  */
 bookmarkRouter.post("/:postId", authMiddleware, toogleSaveFeed);
 
 /**
  * @swagger
- * /api/bookmark/{postId}:
+ * /api/bookmark/status/{postId}:
  *   get:
- *     summary: Cek status apakah user sudah menyimpan postingan tertentu
+ *     summary: Mengecek status tersimpan (Bookmark) dari postingan
  *     tags: [Bookmark]
  *     security:
  *       - bearerAuth: []
@@ -61,7 +70,7 @@ bookmarkRouter.post("/:postId", authMiddleware, toogleSaveFeed);
  *           type: integer
  *     responses:
  *       200:
- *         description: Status bookmark berhasil dicek
+ *         description: Mengembalikan true jika disimpan, false jika tidak
  *         content:
  *           application/json:
  *             schema:
@@ -69,9 +78,11 @@ bookmarkRouter.post("/:postId", authMiddleware, toogleSaveFeed);
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: Post is bookmarked
  *                 data:
  *                   type: boolean
+ *                   example: true
  */
-bookmarkRouter.get("/:postId", authMiddleware, checkSaveFeed);
+bookmarkRouter.get("/status/:postId", authMiddleware, checkSaveFeed);
 
 export default bookmarkRouter;
