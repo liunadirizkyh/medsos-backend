@@ -1,109 +1,22 @@
-import { prisma } from "../lib/prisma.js";
+import * as likeService from "../services/like.service.js";
 
 export const createLike = async (req, res) => {
   try {
-    const id = Number(req.params.id);
-    const currentUser = req.user.id;
-
-    const feed = await prisma.post.findUnique({
-      where: {
-        id: id,
-      },
-    });
-
-    if (!feed) {
-      return res.status(404).json({ message: "Post not found" });
-    }
-
-    const alreadyLike = await prisma.likes.findUnique({
-      where: {
-        userId_postId: {
-          userId: currentUser,
-          postId: id,
-        },
-      },
-    });
-
-    if (alreadyLike) {
-      await prisma.likes.delete({
-        where: {
-          userId_postId: {
-            userId: currentUser,
-            postId: id,
-          },
-        },
-      });
-
-      await prisma.post.update({
-        where: {
-          id,
-        },
-        data: {
-          likeCount: {
-            decrement: 1,
-          },
-        },
-      });
-
-      return res.status(200).json({ message: "Post unliked successfully" });
-    }
-
-    await prisma.likes.create({
-      data: {
-        userId: currentUser,
-        postId: id,
-      },
-    });
-
-    await prisma.post.update({
-      where: {
-        id,
-      },
-      data: {
-        likeCount: {
-          increment: 1,
-        },
-      },
-    });
-
-    res.status(201).json({ message: "Post liked successfully" });
+    const result = await likeService.toggleLike(req.user.id, Number(req.params.id));
+    const message = result.liked ? "Post liked successfully" : "Post unliked successfully";
+    res.status(result.liked ? 201 : 200).json({ message, data: result });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    const statusCode = error.statusCode || 500;
+    res.status(statusCode).json({ error: error.message || "Internal Server Error" });
   }
 };
 
 export const checkLike = async (req, res) => {
-  const id = Number(req.params.id);
-  const currentUser = req.user.id;
-
   try {
-    const feed = await prisma.post.findUnique({
-      where: {
-        id: id,
-      },
-    });
-
-    if (!feed) {
-      return res.status(404).json({ message: "Post not found" });
-    }
-
-    const like = await prisma.likes.findUnique({
-      where: {
-        userId_postId: {
-          userId: currentUser,
-          postId: id,
-        },
-      },
-    });
-
-    if (like) {
-      return res.status(200).json({ data: true });
-    } else {
-      return res.status(200).json({ data: false });
-    }
+    const isLiked = await likeService.checkLikeStatus(req.user.id, Number(req.params.id));
+    res.status(200).json({ message: "Like status checked successfully", data: isLiked });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Internal server error", error });
+    const statusCode = error.statusCode || 500;
+    res.status(statusCode).json({ error: error.message || "Internal Server Error" });
   }
 };

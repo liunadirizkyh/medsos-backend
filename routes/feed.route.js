@@ -7,6 +7,8 @@ import {
   detailFeed,
   deleteFeed,
 } from "../controller/feed.controller.js";
+import validate from "../middleware/validate.middleware.js";
+import { createFeedSchema } from "../validations/feed.validation.js";
 
 const feedRouter = Router();
 
@@ -43,19 +45,10 @@ const feedRouter = Router();
  *     responses:
  *       201:
  *         description: Postingan berhasil dibuat
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 feed:
- *                   type: object
  *       400:
  *         description: Caption atau image tidak disertakan
  */
-feedRouter.post("/", authMiddleware, upload.single("image"), createFeed);
+feedRouter.post("/", authMiddleware, upload.single("image"), validate(createFeedSchema), createFeed);
 
 /**
  * @swagger
@@ -81,23 +74,6 @@ feedRouter.post("/", authMiddleware, upload.single("image"), createFeed);
  *     responses:
  *       200:
  *         description: Daftar postingan berhasil diambil
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 page:
- *                   type: integer
- *                 limit:
- *                   type: integer
- *                 totalPage:
- *                   type: integer
- *                 totalFeed:
- *                   type: integer
- *                 posts:
- *                   type: array
- *                   items:
- *                     type: object
  */
 feedRouter.get("/", authMiddleware, readAllFeeds);
 
@@ -118,15 +94,6 @@ feedRouter.get("/", authMiddleware, readAllFeeds);
  *     responses:
  *       200:
  *         description: Detail postingan berhasil diambil
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 post:
- *                   type: object
  *       404:
  *         description: Postingan tidak ditemukan
  */

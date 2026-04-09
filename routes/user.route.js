@@ -7,6 +7,8 @@ import {
 } from "../controller/user.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import upload from "../middleware/upload.middleware.js";
+import validate from "../middleware/validate.middleware.js";
+import { updateProfileSchema } from "../validations/user.validation.js";
 
 const userRouter = Router();
 
@@ -29,30 +31,9 @@ const userRouter = Router();
  *         required: true
  *         schema:
  *           type: string
- *         description: Username yang dicari (partial match didukung)
  *     responses:
  *       200:
  *         description: Daftar user ditemukan
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 user:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                       username:
- *                         type: string
- *                       fullname:
- *                         type: string
- *                       image:
- *                         type: string
  *       404:
  *         description: Username query is required / User not found
  */
@@ -107,21 +88,12 @@ userRouter.get("/:username", getUserbyUsername);
  *                 type: string
  *                 maxLength: 200
  *     responses:
- *       201:
+ *       200:
  *         description: Profil berhasil diupdate
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 user:
- *                   type: object
  *       400:
  *         description: Validasi error (Zod) atau Username sudah ada
  */
-userRouter.put("/update-user", authMiddleware, updateUser);
+userRouter.put("/update-user", authMiddleware, validate(updateProfileSchema), updateUser);
 
 /**
  * @swagger
@@ -144,17 +116,8 @@ userRouter.put("/update-user", authMiddleware, updateUser);
  *                 type: string
  *                 format: binary
  *     responses:
- *       201:
+ *       200:
  *         description: Foto profil berhasil diupdate
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 user:
- *                   type: object
  *       400:
  *         description: Tidak ada file yang diunggah
  *       500:

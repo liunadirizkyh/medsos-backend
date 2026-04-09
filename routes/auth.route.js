@@ -5,6 +5,8 @@ import {
   registerUser,
 } from "../controller/auth.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
+import validate from "../middleware/validate.middleware.js";
+import { registerSchema, loginSchema } from "../validations/auth.validation.js";
 
 const authRouter = Router();
 
@@ -79,7 +81,7 @@ const authRouter = Router();
  *       500:
  *         description: Internal Server Error
  */
-authRouter.post("/register", registerUser);
+authRouter.post("/register", validate(registerSchema), registerUser);
 
 /**
  * @swagger
@@ -106,59 +108,16 @@ authRouter.post("/register", registerUser);
  *     responses:
  *       200:
  *         description: Login berhasil, mengembalikan token JWT
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: User logged in successfully
- *                 user:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                     email:
- *                       type: string
- *                     username:
- *                       type: string
- *                 token:
- *                   type: string
  *       400:
  *         description: Email atau password tidak disertakan
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: Email and password are required
  *       401:
  *         description: Password salah
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: Invalid password
  *       404:
  *         description: User tidak ditemukan
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: User not found
  *       500:
  *         description: Internal Server Error
  */
-authRouter.post("/login", loginUser);
+authRouter.post("/login", validate(loginSchema), loginUser);
 
 /**
  * @swagger
@@ -171,27 +130,8 @@ authRouter.post("/login", loginUser);
  *     responses:
  *       200:
  *         description: Data user berhasil diambil
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: User retrieved successfully
- *                 user:
- *                   type: object
- *                   description: Objek user yang sedang login
  *       401:
  *         description: Tidak terautentikasi (Token tidak ada atau tidak valid)
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: Unauthorized
  */
 authRouter.get("/me", authMiddleware, getUser);
 
