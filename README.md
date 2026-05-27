@@ -1,64 +1,86 @@
-# Medsos API
+# 📱 Medsos API
 
-Backend REST API untuk aplikasi media sosial.
+Medsos API is a modern, high-performance, and secure backend REST API for a social media application. Built on **Node.js** with the **Express.js** framework, it leverages **Prisma ORM** with **PostgreSQL** for efficient database management, **JWT** for authentication, and **Cloudinary** for scalable media storage.
 
-## Tech Stack
+## ✨ Key Features
 
-- Node.js & Express.js
-- PostgreSQL (Neon) & Prisma
-- JWT & Bcrypt (Authentication)
-- Cloudinary & Multer (Image Upload)
-- Zod (Validation)
-- Vercel (Deployment)
+- **🔐 Robust Authentication**: Secure user registration and login using JWT (JSON Web Tokens) and password hashing with Bcrypt.
+- **👤 Profile Management**: Comprehensive user profile management, including updates to user details and avatar uploads.
+- **📝 Feed & Post CRUD**: Complete CRUD (Create, Read, Update, Delete) lifecycle for social media posts, with support for image uploads.
+- **👥 Social Connections**: Dynamic follow and unfollow system allowing users to connect with one another.
+- **💬 Interactive Comments**: Ability for users to add, view, and delete comments on posts.
+- **❤️ Post Likes**: Quick interactive feedback with likes and unlikes on posts.
+- **🔖 Bookmarks**: Keep track of favorite posts by saving or removing bookmarks.
+- **📖 API Documentation**: Auto-generated, interactive Swagger documentation available at the root URL or `/api-docs`.
 
-## Fitur
+## 🚀 Technologies Used
 
-- 🔐 Register & Login dengan JWT
-- 👤 Profil pengguna & update avatar
-- 📝 CRUD postingan dengan gambar
-- 👥 Follow & unfollow
-- 💬 Komentar
-- ❤️ Like
-- 🔖 Bookmark
+- **Framework**: Express.js (Node.js)
+- **Database ORM**: Prisma Client
+- **Database**: PostgreSQL (e.g., Neon Postgres)
+- **Authentication**: JSON Web Tokens (JWT) & Bcrypt
+- **File Upload & Storage**: Multer & Cloudinary
+- **Request Validation**: Zod
+- **API Documentation**: Swagger UI Express & Swagger JSDoc
+- **Deployment & Hosting**: Vercel ready
 
-## API Endpoints
+## 🛠️ Getting Started
 
-| Base Path | Deskripsi |
-|---|---|
-| `/api/auth` | Register, Login, Get current user |
-| `/api/user` | Pencarian user, profil, update avatar |
-| `/api/feed` | CRUD postingan |
-| `/api/follow` | Follow & unfollow user |
-| `/api/comment` | Tambah & hapus komentar |
-| `/api/like` | Like & unlike postingan |
-| `/api/bookmark` | Simpan & hapus bookmark |
+### Prerequisites
+Make sure you have Node.js (version 18+ recommended) and a PostgreSQL database instance ready.
 
-## Instalasi
+### Installation & Setup
 
-```bash
-# Clone & install
-git clone https://github.com/username/medsos-api.git
-cd medsos-api
-npm install
+1. **Clone the repository and navigate into the project directory:**
+   ```bash
+   git clone https://github.com/liunadirizkyh/medsos-api.git
+   cd medsos-api
+   ```
 
-# Setup environment
-cp .env.example .env
-# Edit .env sesuai konfigurasi database & cloudinary
+2. **Install the dependencies:**
+   ```bash
+   npm install
+   ```
 
-# Setup database
-npx prisma generate
-npx prisma db push
+3. **Configure Environment Variables:**
+   Copy the example environment file and configure your keys in the `.env` file:
+   ```bash
+   cp .env.example .env
+   ```
+   Open the `.env` file and fill in your database connections and Cloudinary API credentials.
 
-# Jalankan server
-npm run dev
-```
+4. **Initialize the Database:**
+   Run Prisma migrations and push the schema to your database:
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   ```
 
-## Environment Variables
+5. **Start the Development Server:**
+   ```bash
+   npm run dev
+   ```
+   The server will start, and by default, it will be available at [http://localhost:3000](http://localhost:3000).
 
-```env
-DATABASE_URL=postgresql://user:password@host:5432/dbname
-JWTSECRET=your_jwt_secret
-CLOUDNAME=your_cloudinary_name
-CLOUDKEY=your_cloudinary_key
-CLOUDPASSWORD=your_cloudinary_secret
-```
+6. **Explore API Documentation:**
+   Open [http://localhost:3000/api-docs](http://localhost:3000/api-docs) in your browser to interact with the API endpoints via Swagger.
+
+## 📡 API Routes Reference
+
+| Base Path | Description | Access |
+|---|---|---|
+| `/api/auth` | User registration, login, and current session fetching | Public / Private |
+| `/api/user` | User search, profile details, and avatar updates | Private |
+| `/api/feed` | Social feed posts management (CRUD) | Private |
+| `/api/follow` | Managing user relationships (Follow / Unfollow) | Private |
+| `/api/comment` | Creating and deleting comments on posts | Private |
+| `/api/like` | Liking and unliking feed posts | Private |
+| `/api/bookmark` | Saving and removing post bookmarks | Private |
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the issues page or open a pull request.
+
+## 📝 License
+
+This project is licensed under the **ISC License**. See `package.json` for details.
